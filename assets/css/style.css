@@ -2,14 +2,9 @@
   #style.css
 \*-----------------------------------*/
 
-
 /**
- * copyright 2022 @codewithsadee
+ * copyright 2025 @CyberSight
  */
-
-
-
-
 
 /*-----------------------------------*\
   #CUSTOM PROPERTY
@@ -316,12 +311,11 @@ main {
 
 .sidebar {
   margin-bottom: 15px;
-  max-height: 112px;
+  max-height:var(--sb-collapsed,112px);
   overflow: hidden;
-  transition: var(--transition-2);
+  transition:max-height var(--transition-2);
+  will-change:max-height;
 }
-
-.sidebar.active { max-height: 405px; }
 
 .sidebar-info {
   position: relative;
@@ -551,7 +545,7 @@ main {
 .service-item-text {
   color: var(--light-gray);
   font-size: var(--fs-6);
-  font-weight: var(--fw-3);
+  font-weight: var(--fw-300);
   line-height: 1.6;
 }
 
@@ -1329,11 +1323,9 @@ textarea.form-input::-webkit-resizer { display: none; }
    */
 
   .sidebar {
-    max-height: 180px;
+    height: 180px;
     margin-bottom: 30px;
   }
-
-  .sidebar.active { max-height: 584px; }
 
   .sidebar-info { gap: 50px; }
 
@@ -1879,4 +1871,27 @@ textarea.form-input::-webkit-resizer { display: none; }
 
   .timeline-text { max-width: 700px; }
 
+}
+
+/* Focus vizibil pentru tastatură (accesibilitate) */
+:focus-visible {
+  outline: 2px dashed var(--orange-yellow-crayola);
+  outline-offset: 2px;
+}
+.navbar-link:focus-visible,
+.social-link:focus-visible,
+.contact-link:focus-visible,
+.form-btn:focus-visible,
+.select-item button:focus-visible {
+  outline: 2px dashed var(--orange-yellow-crayola);
+  outline-offset: 3px;
+}
+
+/* Respectă preferințele utilizatorului pentru mișcare redusă */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
 }
