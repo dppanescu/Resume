@@ -1,159 +1,125 @@
 'use strict';
 
+const elementToggleFunc = (elem) => elem.classList.toggle("active");
 
-
-// element toggle function
-const elementToggleFunc = function (elem) { elem.classList.toggle("active"); }
-
-
-
-// sidebar variables
+// Sidebar
 const sidebar = document.querySelector("[data-sidebar]");
 const sidebarBtn = document.querySelector("[data-sidebar-btn]");
+if (sidebar && sidebarBtn) {
+  sidebarBtn.setAttribute('aria-expanded', 'false');
+  sidebarBtn.setAttribute('aria-controls', 'sidebar-info-more');
 
-// sidebar toggle functionality for mobile
-sidebarBtn.addEventListener("click", function () { elementToggleFunc(sidebar); });
+  sidebarBtn.addEventListener("click", () => {
+    elementToggleFunc(sidebar);
+    const expanded = sidebar.classList.contains('active');
+    sidebarBtn.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+  });
+}
 
-
-
-// testimonials variables
+// Testimonials modal (verifică existența înainte)
 const testimonialsItem = document.querySelectorAll("[data-testimonials-item]");
 const modalContainer = document.querySelector("[data-modal-container]");
 const modalCloseBtn = document.querySelector("[data-modal-close-btn]");
 const overlay = document.querySelector("[data-overlay]");
-
-// modal variable
 const modalImg = document.querySelector("[data-modal-img]");
 const modalTitle = document.querySelector("[data-modal-title]");
 const modalText = document.querySelector("[data-modal-text]");
 
-// modal toggle function
-const testimonialsModalFunc = function () {
+const testimonialsModalFunc = () => {
+  if (!modalContainer || !overlay) return;
   modalContainer.classList.toggle("active");
   overlay.classList.toggle("active");
+};
+
+if (testimonialsItem.length && modalContainer && modalCloseBtn && overlay) {
+  for (const item of testimonialsItem) {
+    item.addEventListener("click", function () {
+      const av = this.querySelector("[data-testimonials-avatar]");
+      const tt = this.querySelector("[data-testimonials-title]");
+      const tx = this.querySelector("[data-testimonials-text]");
+      if (av && modalImg) { modalImg.src = av.src; modalImg.alt = av.alt || ""; }
+      if (tt && modalTitle) modalTitle.textContent = tt.textContent || "";
+      if (tx && modalText) modalText.innerHTML = tx.innerHTML; // conținutul e intern, sigur
+      testimonialsModalFunc();
+    });
+  }
+  modalCloseBtn.addEventListener("click", testimonialsModalFunc);
+  overlay.addEventListener("click", testimonialsModalFunc);
 }
 
-// add click event to all modal items
-for (let i = 0; i < testimonialsItem.length; i++) {
-
-  testimonialsItem[i].addEventListener("click", function () {
-
-    modalImg.src = this.querySelector("[data-testimonials-avatar]").src;
-    modalImg.alt = this.querySelector("[data-testimonials-avatar]").alt;
-    modalTitle.innerHTML = this.querySelector("[data-testimonials-title]").innerHTML;
-    modalText.innerHTML = this.querySelector("[data-testimonials-text]").innerHTML;
-
-    testimonialsModalFunc();
-
-  });
-
-}
-
-// add click event to modal close button
-modalCloseBtn.addEventListener("click", testimonialsModalFunc);
-overlay.addEventListener("click", testimonialsModalFunc);
-
-
-
-// custom select variables
+// Custom select (păstrează denumirea actuală; dacă vrei, redenumește în data-select-value)
 const select = document.querySelector("[data-select]");
 const selectItems = document.querySelectorAll("[data-select-item]");
-const selectValue = document.querySelector("[data-selecct-value]");
+const selectValue = document.querySelector("[data-select-value]");
 const filterBtn = document.querySelectorAll("[data-filter-btn]");
-
-select.addEventListener("click", function () { elementToggleFunc(this); });
-
-// add event in all select items
-for (let i = 0; i < selectItems.length; i++) {
-  selectItems[i].addEventListener("click", function () {
-
-    let selectedValue = this.innerText.toLowerCase();
-    selectValue.innerText = this.innerText;
-    elementToggleFunc(select);
-    filterFunc(selectedValue);
-
-  });
-}
-
-// filter variables
 const filterItems = document.querySelectorAll("[data-filter-item]");
 
-const filterFunc = function (selectedValue) {
+if (select && selectValue) {
+  select.addEventListener("click", function () { elementToggleFunc(this); });
 
-  for (let i = 0; i < filterItems.length; i++) {
-
-    if (selectedValue === "all") {
-      filterItems[i].classList.add("active");
-    } else if (selectedValue === filterItems[i].dataset.category) {
-      filterItems[i].classList.add("active");
-    } else {
-      filterItems[i].classList.remove("active");
+  const filterFunc = (selectedValue) => {
+    for (const el of filterItems) {
+      if (selectedValue === "all" || selectedValue === el.dataset.category) {
+        el.classList.add("active");
+      } else {
+        el.classList.remove("active");
+      }
     }
+  };
 
+  for (const it of selectItems) {
+    it.addEventListener("click", function () {
+      const selectedValue = this.innerText.toLowerCase();
+      selectValue.innerText = this.innerText;
+      elementToggleFunc(select);
+      filterFunc(selectedValue);
+    });
   }
 
+  let lastClickedBtn = filterBtn[0];
+  for (const btn of filterBtn) {
+    btn.addEventListener("click", function () {
+      const selectedValue = this.innerText.toLowerCase();
+      selectValue.innerText = this.innerText;
+      filterFunc(selectedValue);
+      if (lastClickedBtn) lastClickedBtn.classList.remove("active");
+      this.classList.add("active");
+      lastClickedBtn = this;
+    });
+  }
 }
 
-// add event in all filter button items for large screen
-let lastClickedBtn = filterBtn[0];
-
-for (let i = 0; i < filterBtn.length; i++) {
-
-  filterBtn[i].addEventListener("click", function () {
-
-    let selectedValue = this.innerText.toLowerCase();
-    selectValue.innerText = this.innerText;
-    filterFunc(selectedValue);
-
-    lastClickedBtn.classList.remove("active");
-    this.classList.add("active");
-    lastClickedBtn = this;
-
-  });
-
-}
-
-
-
-// contact form variables
+// Form
 const form = document.querySelector("[data-form]");
 const formInputs = document.querySelectorAll("[data-form-input]");
 const formBtn = document.querySelector("[data-form-btn]");
-
-// add event to all form input field
-for (let i = 0; i < formInputs.length; i++) {
-  formInputs[i].addEventListener("input", function () {
-
-    // check form validation
-    if (form.checkValidity()) {
-      formBtn.removeAttribute("disabled");
-    } else {
-      formBtn.setAttribute("disabled", "");
-    }
-
-  });
+if (form && formInputs.length && formBtn) {
+  for (const inp of formInputs) {
+    inp.addEventListener("input", () => {
+      if (form.checkValidity()) formBtn.removeAttribute("disabled");
+      else formBtn.setAttribute("disabled", "");
+    });
+  }
 }
 
-
-
-// page navigation variables
+// Nav
 const navigationLinks = document.querySelectorAll("[data-nav-link]");
 const pages = document.querySelectorAll("[data-page]");
-
-// add event to all nav link
-for (let i = 0; i < navigationLinks.length; i++) {
-  navigationLinks[i].addEventListener("click", function () {
-
-    for (let i = 0; i < pages.length; i++) {
-      if (this.innerHTML.toLowerCase() === pages[i].dataset.page) {
-        pages[i].classList.add("active");
-        navigationLinks[i].classList.add("active");
-        window.scrollTo(0, 0);
-      } else {
-        pages[i].classList.remove("active");
-        navigationLinks[i].classList.remove("active");
+if (navigationLinks.length && pages.length) {
+  for (const nav of navigationLinks) {
+    nav.addEventListener("click", function () {
+      for (let i = 0; i < pages.length; i++) {
+        if (this.innerHTML.toLowerCase() === pages[i].dataset.page) {
+          pages[i].classList.add("active");
+          navigationLinks[i].classList.add("active");
+          this.setAttribute('aria-current', 'page');
+          window.scrollTo(0, 0);
+        } else {
+          pages[i].classList.remove("active");
+          navigationLinks[i].removeAttribute('aria-current');
+          navigationLinks[i].classList.remove("active");
+        }
       }
-    }
-
-  });
+    });
+  }
 }
